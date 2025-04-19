@@ -1,0 +1,100 @@
+---
+title: "RepData_PeerAssessment1"
+author: "Viswathish Dinesh"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+## Loading required packages
+```{r, results=FALSE}
+library(stats)
+library(dplyr)
+library(ggplot2)
+```
+
+## Loading and preprocessing the data
+
+### Loading the data into R:
+```{r Loading}
+unzip("activity.zip")
+rawdata <- read.csv("activity.csv")
+```
+
+### Convert date column into date format, view summary of data:
+```{r PreProcessing}
+rawdata$date <- as.Date(rawdata$date, format = "%Y-%m-%d")
+```
+
+### Grouping data by different parameters
+```{r Grouping}
+by_date <- group_by(rawdata, date)
+date_stats <- summarize(by_date, total = sum(steps, na.rm = T),
+                    mean = mean(steps, na.rm = T),
+                    median = median(steps, na.rm = T))
+
+by_int <- group_by(rawdata, interval)
+int_stats <- summarize(by_int, total = sum(steps, na.rm = T),
+                    mean = mean(steps, na.rm = T),
+                    median = median(steps, na.rm = T))
+```
+
+## What is the mean total number of steps taken per day?
+
+### Histogram of total steps per day
+```{r totalHist}
+ggplot(date_stats, aes(date, total)) + 
+        geom_bar(stat = "identity", aes(fill = total)) + 
+        labs(title = "Total Steps per Day") + 
+        xlab(label = "Date") + 
+        ylab(label = "Total Steps")
+```
+
+### Histogram of mean and median steps per day
+```{r mean&median}
+ggplot(date_stats, aes(date, mean)) + 
+        geom_bar(stat = "identity", aes(fill = total)) + 
+        labs(title = "Average Steps per Day (Mean)") + 
+        xlab(label = "Date") + 
+        ylab(label = "Average Steps")
+ggplot(date_stats, aes(date, median)) + 
+        geom_bar(stat = "identity", aes(fill = total)) + 
+        labs(title = "Average Steps per Day (Median)") + 
+        xlab(label = "Date") + 
+        ylab(label = "Average Steps")
+```
+
+## What is the average daily activity pattern?
+
+### Which 5-minute interval, on average across all days, has the maximum amount of steps?
+```{r max daily activity}
+max_steps <- which.max(int_stats$mean)
+max_interval <- int_stats[max_steps,]
+```
+The 5-minute interval with the maximum amount of steps, on average, is `r max_interval$interval`.
+
+### Time series of average number of steps throughout the day
+```{r daily activity}
+ggplot(int_stats, aes(interval,mean)) + 
+        geom_line(linewidth = 1) +
+        xlab(label = "Time Interval") +
+        ylab(label = "Average Number of Steps") +
+        labs(title = "Average Number of Steps per 5-minute Time Interval")
+```
+
+
+## Imputing Missing Values
+
+### Calculating the total number of missing values
+```{r how many missing}
+na_values <- sum(as.integer(is.na(rawdata$steps)))
+```
+There are 'r na_values' missing values.  
+Let's use the average of each time interval to replace the missing values.
+
+### Creating a new data set that replaces NA values of original data set
+```{r imputing data}
+filled_data <- rawdata
+for (i in steps){
+        
+}
+```
