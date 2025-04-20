@@ -125,3 +125,30 @@ tot_mean_imp <- round(mean(imputed_stats$total), digits = 2)
 tot_median_imp <- round(median(imputed_stats$total), digits = 2)
 ```
 The mean number of total steps per day is `r as.character(tot_mean_imp)`, and the median is `r as.character(tot_median_imp)`. These values differ from the initial estimates, and the effect of imputing the data for the NA values has made the mean and median the same.
+
+## Differences in activity patterns between weekdays and weekends
+
+### Adding factor column to filled data
+```{r adding day type}
+filled_data$day_type <- ifelse(weekdays(filled_data$date) %in% c("Saturday", "Sunday"),
+                               yes = "Weekend",
+                               no = "Weekday")
+filled_data$day_type <- as.factor(filled_data$day_type)
+```
+
+### Creating panel plot of average steps per 5-minute interval
+```{r Wday vs Wend plots}
+by_int_imp <- group_by(filled_data, interval, day_type)
+int_stats_imp <- summarize(by_int_imp, total = sum(steps),
+                    mean = mean(steps),
+                    median = median(steps),
+                    day_type = day_type)
+ggplot(int_stats_imp, aes(interval,mean)) + 
+        facet_grid(day_type~.) +
+        geom_line(linewidth = 1) +
+        xlab(label = "Time Interval") +
+        ylab(label = "Average Number of Steps") +
+        labs(title = "Average Number of Steps per 5-minute Time Interval")
+```
+
+During weekdays, the majority of steps taken are in the earlier part of the day, while the distribution of steps during weekends are more spread out during the day. Steps also begin earlier in the day overall on weekdays compared to weekends.
