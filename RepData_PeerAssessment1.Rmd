@@ -63,6 +63,13 @@ ggplot(date_stats, aes(date, median)) +
         ylab(label = "Average Steps")
 ```
 
+### Calculating mean and median of total steps per day
+```{r mean$median total}
+tot_mean <- round(mean(date_stats$total), digits = 2)
+tot_median <- median(date_stats$total)
+```
+The mean number of total steps per day is `r tot_mean`, and the median is `r tot_median`.
+
 ## What is the average daily activity pattern?
 
 ### Which 5-minute interval, on average across all days, has the maximum amount of steps?
@@ -94,7 +101,27 @@ Let's use the average of each time interval to replace the missing values.
 ### Creating a new data set that replaces NA values of original data set
 ```{r imputing data}
 filled_data <- rawdata
-for (i in steps){
-        
-}
+filled_data$steps <- ifelse(is.na(filled_data$steps),
+                            yes = int_stats$mean[int_stats$interval %in% filled_data$interval],
+                            no = filled_data$steps)
 ```
+
+### Generating a histogram of total number of steps per day
+```{r imputed histogram}
+imp_by_date <- group_by(filled_data, date)
+imputed_stats <- summarize(imp_by_date, total = sum(steps),
+                    mean = mean(steps),
+                    median = median(steps))
+ggplot(imputed_stats, aes(date, total)) + 
+        geom_bar(stat = "identity", aes(fill = total)) + 
+        labs(title = "Total Steps per Day") + 
+        xlab(label = "Date") + 
+        ylab(label = "Total Steps")
+```
+
+### Calculating mean and median total steps per day, with imputed data
+```{r mean&median total, imputed}
+tot_mean_imp <- round(mean(imputed_stats$total), digits = 2)
+tot_median_imp <- round(median(imputed_stats$total), digits = 2)
+```
+The mean number of total steps per day is `r as.character(tot_mean_imp)`, and the median is `r as.character(tot_median_imp)`. These values differ from the initial estimates, and the effect of imputing the data for the NA values has made the mean and median the same.
